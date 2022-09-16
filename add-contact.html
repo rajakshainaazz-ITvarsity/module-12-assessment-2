@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+    <head>
+        <title>New Contact</title>
+        <link href="css/bootstrap.css" rel="stylesheet"/>
+    </head>
+    <body class="">
+        
+        <!-- <form id="editForm">
+            <label for="firstname">First name</label>
+            <input type="text" name="firstname" id="firstname"><br/>
+            <label for="lastname">last name</label>
+            <input type="text" name="lastname" id="lastname"><br/>
+            <label for="mobile">Mobile</label>
+            <input type="text" name="mobile" id="mobile"><br/>
+            <label for="email">Email</label>
+            <input type="text" name="email" id="email"><br/>
+            <label for="avatar">Select a file</label>
+            <input type="file" name="avatar" id="avatar"><br/>
+            <button type="submit" id="submitForm">Submit</button>
+        </form> -->
+        <div class="bg-light py-sm-5">
+
+            <form class="w-100 pb-5" id="editForm">
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="firstname">First name</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="firstname" id="firstname"><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="lastname">last name</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="lastname" id="lastname"><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="mobile">Mobile</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="mobile" id="mobile"><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="email">Email</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="email" id="email"><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto" for="avatar" id="avatarLabel">Change profile image</label><br/>
+                    <input class="col-sm-4 mx-auto" type="file" name="avatar" id="avatar"><br/><br/>
+                </div>
+                <div class="row">
+                    <button class="col-8 col-sm-4 mx-auto p-3" type="submit" id="submitForm">Submit</button>
+                </div>
+            </form>
+        </div>
+        <br/>
+        <section class="row w-100 position-fixed bottom-0 end-0 m-auto">
+            <button class="col-12 p-3 border-0"id="homeLink" type="button">Home</button>
+        </section>
+
+        <script src="js/config.js"></script>
+        <script>
+
+            document.getElementById("submitForm").addEventListener('click', submitForm);
+            document.getElementById("homeLink").addEventListener('click', homeLink);
+
+
+            function submitForm(e){
+                e.preventDefault();
+                const form = new FormData(document.querySelector('#editForm'));
+                form.append('apiKey', apiKey);
+
+                fetch(rootPath + 'controller/insert-contact/', {
+                    method: 'POST',
+                    headers: {'Accept':'application/json, *.*'},
+                    body: form
+                })
+                .then(function(response){
+                    return response.text();
+                })
+                .then(function(data){
+                    if (data == "1") {
+                        alert("Contact added.");
+                        homeLink();
+                    }else{
+                        alert(data)
+                        homeLink();
+                    }
+                })
+            }
+
+            function homeLink(){
+                window.open("index.html","_self");
+            }
+        </script>
+    </body>
+</html>

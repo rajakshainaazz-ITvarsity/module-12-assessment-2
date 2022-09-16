@@ -1,0 +1,141 @@
+<html>
+    <head>
+        <title></title>
+        <link href="css/bootstrap.css" rel="stylesheet">
+    </head>
+    <body onload="getContact()">
+        <div class="container bg-light text-center mb-5 pt-2 pt-sm-5">
+            <div class="row mx-auto" id="avatarImage"></div>
+            <form class="w-100 pb-5" id="editForm">
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="firstname">First name</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="firstname" id="firstname" readonly><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="lastname">last name</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="lastname" id="lastname" readonly><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="mobile">Mobile</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="mobile" id="mobile" readonly><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto p-1" for="email">Email</label>
+                    <input class="col-sm-6 mx-auto text-center border-0 p-1" type="text" name="email" id="email" readonly><br/>
+                </div>
+                <div class="row m-4">
+                    <label class="col-sm-3 text-sm-end mx-auto" for="avatar" id="avatarLabel" hidden>Change profile image</label><br/>
+                    <input class="col-sm-4 mx-auto" type="file" name="avatar" id="avatar" hidden><br/><br/>
+                </div>
+                <div class="row">
+                    <button class="col-8 col-sm-4 mx-auto p-3" type="submit" id="submitForm" hidden>Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <section class="row bg-dark w-100 position-fixed bottom-0 end-0 m-auto">
+            <button class="col-4 p-3 border-0" id="homeLink" type="button">Home</button>
+            <button class="col-4 p-3 border-0" id="editContact" type="button">Edit</button>
+            <button class="col-4 p-3 border-0" id="deleteContact" type="button">Delete</button>
+        </section>
+
+        <script src="js/config.js"></script>
+        <script>
+            var id = getId();
+
+            document.getElementById('homeLink').addEventListener('click', homeLink);
+            document.getElementById('editContact').addEventListener('click', editContact);
+            document.getElementById('submitForm').addEventListener('click', submitForm);
+            document.getElementById('deleteContact').addEventListener('click', deleteContact);
+            document.querySelector("title").innerText = "User...";
+
+            function getId(){
+                var url = window.location.href;
+                var pos = url.search("=");
+                var id = url.slice(pos + 1);
+                return id;
+            }
+
+            function getContact(){
+                fetch(rootPath+'controller/get-contacts/?id=' + id)
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(data){
+                    displayOutput(data);
+                    document.querySelector("title").innerText = data[0].firstname +" "+data[0].lastname ;
+                })
+            }
+
+            function homeLink(){
+                window.open("index.html", "_self");
+            }
+
+            function displayOutput(data){
+                avatarImg = `
+                    <img class="col-sm-6 mx-auto" src="${rootPath}/controller/uploads/${data[0].avatar}"/>
+                `;
+                document.getElementById("avatarImage").innerHTML = avatarImg;
+                document.getElementById("firstname").value = data[0].firstname;
+                document.getElementById("lastname").value = data[0].lastname;
+                document.getElementById("mobile").value = data[0].mobile;
+                document.getElementById("email").value = data[0].email;
+            }
+
+            function editContact(){
+                document.getElementById("firstname").readOnly = false;
+                document.getElementById("lastname").readOnly = false;
+                document.getElementById("mobile").readOnly = false;
+                document.getElementById("email").readOnly = false;
+
+                document.getElementById("avatarLabel").hidden = false;
+                document.getElementById("avatar").hidden = false;
+                document.getElementById("submitForm").hidden = false;
+            }
+
+            function submitForm(e){
+                e.preventDefault();
+
+                const form = new FormData(document.querySelector("#editForm"));
+                form.append('apiKey', apiKey);
+                form.append('id', id);
+
+                fetch(rootPath+'controller/edit-contact/', {
+                    method: 'POST',
+                    headers: {'Accept': 'application/json, *.*'},
+                    body: form
+                })
+                .then(function(response){
+                    return response.text();
+                })
+                .then(function(data){
+                    if(data=="1"){
+                        alert("Contact edited!")
+                        homeLink();
+                    }else{
+                        alert(data);
+                        homeLink();
+                    }
+                })
+            }
+
+            function deleteContact(){
+                var confirmDelete = confirm("Delete contact. Are you sure?");
+                if (confirmDelete == true) {
+                    fetch(rootPath+'controller/delete-contact/?id='+id)
+                    .then(function(response){
+                        return response.text();
+                    })
+                    .then(function(data){
+                        if (data == "1") {
+                            homeLink();
+                        }else{
+                            alert(data);
+                        }
+                    })
+                }
+            }
+
+        </script>
+    </body>
+</html>
